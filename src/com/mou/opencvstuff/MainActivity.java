@@ -27,23 +27,23 @@ import android.widget.Toast;
 public class MainActivity extends Activity implements CvCameraViewListener2 {
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private String TAG = "opencvstuff";
-
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
+	
+	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+		@Override
         public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS:
-                {
-                    Log.i(TAG, "OpenCV loaded successfully");
-                    mOpenCvCameraView.enableView();
-                } break;
-                default:
-                {
-                	super.onManagerConnected(status);
-                } break;
-            }
-        }
-    };
+			switch (status) {
+			case LoaderCallbackInterface.SUCCESS:
+			{
+				Log.i(TAG, "OpenCV loaded successfully");
+				mOpenCvCameraView.enableView();
+			} break;
+			default:
+			{
+				super.onManagerConnected(status);
+			} break;
+			}
+		}
+	};
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -77,24 +77,33 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		
 	}
 	@Override
 	public void onCameraViewStopped() {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat mRgba;
     	Mat mGray;
-    	Mat mCanny = new Mat();
-    	Mat lines = new Mat();
-    	double thresh = 60;
+    	//Mat mCanny = new Mat();
+    	//double thresh = 70;
     	
-    	mGray = inputFrame.gray();
     	mRgba = inputFrame.rgba();
-    	Imgproc.Canny(mGray, mCanny, thresh * 0.4, thresh);
+    	mGray = inputFrame.gray();
+    	//Imgproc.Canny(mGray, mCanny, thresh * 0.4, thresh);
+    	
+    	Mat circles = new Mat();
+    	Imgproc.GaussianBlur(mGray, mGray, new Size(15,15), 0, 0);
+    	Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, mGray.rows() / 4);
+    	for (int i = 0; i < circles.cols(); i++)
+    	{
+    		double mCircle[] = circles.get(0, i);
+    		Point a = new Point(mCircle[0], mCircle[1]);
+    		Core.circle(mRgba, a, (int)mCircle[2], new Scalar(0, 255, 0));
+    	}
+    	/*
+    	Mat lines = new Mat();
     	Imgproc.HoughLinesP(mCanny, lines, 1, Math.PI/180, 30, 70, 10);
     	for (int i = 0; i < lines.cols(); i++)
     	{
@@ -103,6 +112,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         	Point b = new Point(mvec[2], mvec[3]);
         	Core.line(mRgba, a, b, new Scalar(0, 255, 0, 255), 3);
     	}
+    	*/
     	return (mRgba);
 	}
 }
