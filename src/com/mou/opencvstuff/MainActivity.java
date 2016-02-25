@@ -16,15 +16,19 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements CvCameraViewListener2 {
+	public View mView;
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private String TAG = "opencvstuff";
 	
@@ -48,31 +52,36 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		//Intent intent = new Intent("org.opencv.engine.BIND");
+		//intent.setPackage("org.opencv.engine");
+		
+		mView = (View) findViewById(R.id.text);
+		
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camview);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 	}
 	
-	 @Override
-	 public void onPause()
-	 {
-		 super.onPause();
-		 if (mOpenCvCameraView != null){
-			 mOpenCvCameraView.disableView();
-		 }
-	 }
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		if (mOpenCvCameraView != null){
+			mOpenCvCameraView.disableView();
+		}
+	}
 	 
-	 @Override
-	 public void onResume()
-	 {
-		 super.onResume();
-		 OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, getApplicationContext(), mLoaderCallback);
-	 }
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_11, getApplicationContext(), mLoaderCallback);
+	}
 
-	 public void onDestroy() {
-		 super.onDestroy();
-		 mOpenCvCameraView.disableView();
-	 }
+	public void onDestroy() {
+		super.onDestroy();
+		mOpenCvCameraView.disableView();
+	}
 
 	
 	@Override
@@ -80,39 +89,27 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	}
 	@Override
 	public void onCameraViewStopped() {
-		// TODO Auto-generated method stub
 	}
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat mRgba;
     	Mat mGray;
-    	//Mat mCanny = new Mat();
-    	//double thresh = 70;
     	
     	mRgba = inputFrame.rgba();
     	mGray = inputFrame.gray();
-    	//Imgproc.Canny(mGray, mCanny, thresh * 0.4, thresh);
     	
     	Mat circles = new Mat();
-    	Imgproc.GaussianBlur(mGray, mGray, new Size(15,15), 0, 0);
+    	Imgproc.GaussianBlur(mGray, mGray, new Size(9,9), 2, 2);
+    	//floutage pour une meilleure detection
     	Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, mGray.rows() / 4);
     	for (int i = 0; i < circles.cols(); i++)
     	{
     		double mCircle[] = circles.get(0, i);
     		Point a = new Point(mCircle[0], mCircle[1]);
+    		UpdateView updater = new UpdateView(this, mCircle[0], mCircle[1], mCircle[2]);
     		Core.circle(mRgba, a, (int)mCircle[2], new Scalar(0, 255, 0));
+    		runOnUiThread(updater);
     	}
-    	/*
-    	Mat lines = new Mat();
-    	Imgproc.HoughLinesP(mCanny, lines, 1, Math.PI/180, 30, 70, 10);
-    	for (int i = 0; i < lines.cols(); i++)
-    	{
-    		double mvec[] = lines.get(0, i);
-    		Point a = new Point(mvec[0], mvec[1]);
-        	Point b = new Point(mvec[2], mvec[3]);
-        	Core.line(mRgba, a, b, new Scalar(0, 255, 0, 255), 3);
-    	}
-    	*/
     	return (mRgba);
 	}
 }
