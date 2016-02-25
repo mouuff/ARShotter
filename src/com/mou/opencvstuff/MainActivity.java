@@ -31,20 +31,21 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public View mView;
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private String TAG = "opencvstuff";
+	private UpdateView Updater;
 	
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
         public void onManagerConnected(int status) {
 			switch (status) {
-			case LoaderCallbackInterface.SUCCESS:
-			{
-				Log.i(TAG, "OpenCV loaded successfully");
-				mOpenCvCameraView.enableView();
-			} break;
-			default:
-			{
-				super.onManagerConnected(status);
-			} break;
+				case LoaderCallbackInterface.SUCCESS:
+				{
+					Log.i(TAG, "OpenCV loaded successfully");
+					mOpenCvCameraView.enableView();
+				} break;
+				default:
+				{
+					super.onManagerConnected(status);
+				} break;
 			}
 		}
 	};
@@ -52,12 +53,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		//Intent intent = new Intent("org.opencv.engine.BIND");
-		//intent.setPackage("org.opencv.engine");
-		
-		mView = (View) findViewById(R.id.text);
-		
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		
+		Updater = new UpdateView(this);
+		mView = (View) findViewById(R.id.text);
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camview);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 	}
@@ -83,7 +82,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView.disableView();
 	}
 
-	
 	@Override
 	public void onCameraViewStarted(int width, int height) {
 	}
@@ -99,17 +97,18 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	mGray = inputFrame.gray();
     	
     	Mat circles = new Mat();
-    	Imgproc.GaussianBlur(mGray, mGray, new Size(9,9), 2, 2);
+    	Imgproc.GaussianBlur(mGray, mGray, new Size(11,11), 2, 2);
     	//floutage pour une meilleure detection
     	Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, mGray.rows() / 4);
     	for (int i = 0; i < circles.cols(); i++)
     	{
     		double mCircle[] = circles.get(0, i);
     		Point a = new Point(mCircle[0], mCircle[1]);
-    		UpdateView updater = new UpdateView(this, mCircle[0], mCircle[1], mCircle[2]);
+    		Updater.updateData(mCircle[0], mCircle[1], mCircle[2]);
     		Core.circle(mRgba, a, (int)mCircle[2], new Scalar(0, 255, 0));
-    		runOnUiThread(updater);
     	}
+    	runOnUiThread(Updater);
+    	//move View from last sequence
     	return (mRgba);
 	}
 }
