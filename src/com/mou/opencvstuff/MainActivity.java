@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public View mView;
-	private CameraBridgeViewBase mOpenCvCameraView;
+	public CameraBridgeViewBase mOpenCvCameraView;
 	private String TAG = "opencvstuff";
 	private UpdateView Updater;
 	
@@ -84,6 +84,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
+		Updater.setCameraSize(width, height);
 	}
 	@Override
 	public void onCameraViewStopped() {
@@ -99,7 +100,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	Mat circles = new Mat();
     	Imgproc.GaussianBlur(mGray, mGray, new Size(11,11), 2, 2);
     	//floutage pour une meilleure detection
-    	Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, mGray.rows() / 4);
+    	Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, mGray.rows() / 4, 200, 100, 0, 0);
     	for (int i = 0; i < circles.cols(); i++)
     	{
     		double mCircle[] = circles.get(0, i);
