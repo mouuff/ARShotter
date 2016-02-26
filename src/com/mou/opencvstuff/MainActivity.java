@@ -56,7 +56,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
 		Updater = new UpdateView(this);
-		mView = (View) findViewById(R.id.text);
+		mView = (View) findViewById(R.id.lock_on);
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camview);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 	}

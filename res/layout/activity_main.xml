@@ -12,16 +12,12 @@
         opencv:camera_id="any"
         opencv:show_fps="true" />
 
-    <TextView
-        android:id="@+id/text"
-        android:text="Whololo"
+    <ImageView
+        android:id="@+id/lock_on"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:ems="10" >
-
-        <requestFocus />
-    </TextView>
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/lock" />
 
 </RelativeLayout>
