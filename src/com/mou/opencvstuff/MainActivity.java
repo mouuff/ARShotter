@@ -105,7 +105,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	{
     		double mCircle[] = circles.get(0, i);
     		Point a = new Point(mCircle[0], mCircle[1]);
-    		Updater.updateData(mCircle[0], mCircle[1], mCircle[2]);
+    		Updater.updateData(a, mCircle[2]);
     		Core.circle(mRgba, a, (int)mCircle[2], new Scalar(0, 255, 0));
     	}
     	runOnUiThread(Updater);

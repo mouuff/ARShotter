@@ -3,20 +3,17 @@
  */
 package com.mou.opencvstuff;
 
-import android.util.Log;
-import android.widget.RelativeLayout;
+import org.opencv.core.Point;
 
 /**
  * @author alies_a
- * modification du l'ui lors d'une detection
+ * modification de l'ui lors d'une detection
  */
 
 public class UpdateView implements Runnable{
 	private MainActivity context;
-	private double oldx;
-	private double oldy;
-	private double x;
-	private double y;
+	private Point old;
+	private Point curr;
 	private double rad;
 	public int CamHeight;
 	public int CamWidth;
@@ -24,10 +21,8 @@ public class UpdateView implements Runnable{
 	public UpdateView(MainActivity _context)
 	{
 		context = _context;
-		oldx = 0;
-		oldy = 0;
-		x = 0;
-		y = 0;
+		old = new Point();
+		curr = new Point();
 		rad = 0;
 		CamWidth = 0;
 		CamHeight = 0;
@@ -37,46 +32,41 @@ public class UpdateView implements Runnable{
 		CamWidth = width;
 		CamHeight = height;
 	}
-	public void updateData(double _x, double _y, double _rad)
+	public void updateData(Point a, double _rad)
 	{
-		x = _x;
-		y = _y;
+		curr = a;
 		rad = _rad;
 	}
-	private int XtoAbsolute(double x)
+	private Point getMiddle(Point from)
 	{
-		int ViewRes;
-		ViewRes = context.mOpenCvCameraView.getWidth();
-		return ((int)(x / (double)CamWidth * (double)ViewRes));
-	}
-	private int YtoAbsolute(double y)
-	{
-		int ViewRes;
-		ViewRes = context.mOpenCvCameraView.getHeight();
-		return ((int)(y / (double)CamHeight * (double)ViewRes));
+		Point res = new Point();
+		res.x = from.x / (double)CamWidth * (double)context.mOpenCvCameraView.getWidth();
+		res.y = from.y / (double)CamHeight * (double)context.mOpenCvCameraView.getHeight();
+		return (res);
 	}
 	@Override
 	public void run() {
-		double newx;
-		double newy;
+		Point new_pos = new Point();
+		Point middle;
 		
 		if (CamWidth == 0 || CamHeight == 0)
 			return ;
-		if (oldx == 0 || oldy == 0)
+		if (old.x == 0 || old.y == 0)
 		{
-			newx = x;
-			newy = y;
+			new_pos.x = curr.x;
+			new_pos.y = curr.y;
 		}
 		else
 		{
-			newx = oldx - (oldx - x) / 10;
-			newy = oldy - (oldy - y) / 10;
+			new_pos.x = old.x - (old.x - curr.x) / 10;
+			new_pos.y = old.y - (old.y - curr.y) / 10;
 		}
-		context.mView.setX(XtoAbsolute(newx) - context.mView.getWidth() / 2);
-		context.mView.setY(YtoAbsolute(newy) - context.mView.getHeight() / 2);
+		middle = getMiddle(new_pos);
+		context.mView.setX((float) (middle.x - context.mView.getWidth() / 2));
+		context.mView.setY((float) (middle.y - context.mView.getHeight() / 2));
 		context.mView.bringToFront();
-		oldx = newx;
-		oldy = newy;
+		old = new_pos;
+		
 	}
 
 }
