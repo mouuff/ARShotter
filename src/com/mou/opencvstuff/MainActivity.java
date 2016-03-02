@@ -115,6 +115,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	runOnUiThread(Updater);
     	//move View from last sequence
     	//mRgba
+    	//System.gc();
     	return (rGray);
 	}
 }
