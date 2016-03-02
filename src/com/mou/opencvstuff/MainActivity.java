@@ -52,15 +52,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		Updater = new UpdateView(this);
 	}
-	private Mat Zoom(Mat from, double factor)
+	private Mat Zoom(Mat from, double factor, double xoff, double yoff)
 	{
 		Mat res = new Mat(from.rows(), from.cols(), from.type());
 		Mat resized;
 		resized = from.submat(
-				(int)(from.rows() - from.rows() * factor),
-				(int)(from.rows() * factor),
-				(int)(from.cols() - from.cols() * factor),
-				(int)(from.cols() * factor));
+				(int)((from.rows() - from.rows() * factor) - xoff),
+				(int)((from.rows() * factor) - xoff),
+				(int)((from.cols() - from.cols() * factor) - yoff),
+				(int)((from.cols() * factor) - yoff));
 		//Imgproc.resize(from, resized, new Size(from.rows() * factor, from.cols() * factor), 0, 0, Imgproc.INTER_CUBIC);
 		Imgproc.resize(resized, res, res.size(), 0, 0, Imgproc.INTER_NEAREST);
 		return (res);
@@ -94,25 +94,27 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat mRgba;
     	Mat mGray;
+    	Mat rRgba;
+    	Mat rGray;
     	
     	mRgba = inputFrame.rgba();
     	mGray = inputFrame.gray();
+    	rRgba = Zoom(mRgba, 0.64, 5, -25);
+    	rGray = Zoom(mGray, 0.64, 5, -25);
     	
     	Mat circles = new Mat();
-    	Imgproc.GaussianBlur(mGray, mGray, new Size(11,11), 2, 2);
-    	Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, mGray.rows() / 4, 200, 100, 0, 0);
+    	Imgproc.GaussianBlur(rGray, rGray, new Size(15,15), 2, 2);
+    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, rGray.rows() / 4, 200, 100, 0, 0);
     	for (int i = 0; i < circles.cols(); i++)
     	{
     		double mCircle[] = circles.get(0, i);
     		Point a = new Point(mCircle[0], mCircle[1]);
     		Updater.updateData(a, mCircle[2]);
-    		Core.circle(mRgba, a, (int)mCircle[2], new Scalar(0, 255, 0));
+    		Core.circle(rRgba, a, (int)mCircle[2], new Scalar(0, 255, 0));
     	}
     	runOnUiThread(Updater);
     	//move View from last sequence
     	//mRgba
-    	Mat res;
-    	res = Zoom(mRgba, 0.7);
-    	return (res);
+    	return (rGray);
 	}
 }
