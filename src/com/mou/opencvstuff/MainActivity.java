@@ -4,11 +4,9 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -16,16 +14,10 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.hardware.Camera;
-import android.hardware.Camera.Parameters;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public View mView;
@@ -54,13 +46,25 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		
-		Updater = new UpdateView(this);
+
 		mView = (View) findViewById(R.id.lock_on);
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camview);
 		mOpenCvCameraView.setCvCameraViewListener(this);
+		Updater = new UpdateView(this);
 	}
-	
+	private Mat Zoom(Mat from, double factor)
+	{
+		Mat res = new Mat(from.rows(), from.cols(), from.type());
+		Mat resized;
+		resized = from.submat(
+				(int)(from.rows() - from.rows() * factor),
+				(int)(from.rows() * factor),
+				(int)(from.cols() - from.cols() * factor),
+				(int)(from.cols() * factor));
+		//Imgproc.resize(from, resized, new Size(from.rows() * factor, from.cols() * factor), 0, 0, Imgproc.INTER_CUBIC);
+		Imgproc.resize(resized, res, res.size(), 0, 0, Imgproc.INTER_NEAREST);
+		return (res);
+	}
 	@Override
 	public void onPause()
 	{
@@ -69,19 +73,16 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			mOpenCvCameraView.disableView();
 		}
 	}
-	 
 	@Override
 	public void onResume()
 	{
 		super.onResume();
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_11, getApplicationContext(), mLoaderCallback);
 	}
-
 	public void onDestroy() {
 		super.onDestroy();
 		mOpenCvCameraView.disableView();
 	}
-
 	@Override
 	public void onCameraViewStarted(int width, int height) {
 		Updater.setCameraSize(width, height);
@@ -99,7 +100,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	
     	Mat circles = new Mat();
     	Imgproc.GaussianBlur(mGray, mGray, new Size(11,11), 2, 2);
-    	//floutage pour une meilleure detection
     	Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, mGray.rows() / 4, 200, 100, 0, 0);
     	for (int i = 0; i < circles.cols(); i++)
     	{
@@ -110,6 +110,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	}
     	runOnUiThread(Updater);
     	//move View from last sequence
-    	return (mRgba);
+    	//mRgba
+    	Mat res;
+    	res = Zoom(mRgba, 0.7);
+    	return (res);
 	}
 }

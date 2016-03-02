@@ -5,6 +5,7 @@ package com.mou.opencvstuff;
 
 import org.opencv.core.Point;
 
+
 /**
  * @author alies_a
  * modification de l'ui lors d'une detection
@@ -22,7 +23,10 @@ public class UpdateView implements Runnable{
 	{
 		context = _context;
 		old = new Point();
-		curr = new Point();
+		if (context.mView != null)
+			curr = new Point(context.mView.getWidth() / 2, context.mView.getHeight() / 2);
+		else
+			curr = new Point();
 		rad = 0;
 		CamWidth = 0;
 		CamHeight = 0;
@@ -36,6 +40,12 @@ public class UpdateView implements Runnable{
 	{
 		curr = a;
 		rad = _rad;
+		/*
+		Animation rotate = AnimationUtils.loadAnimation(context, R.animator.rotate);
+		context.mView.setPivotX((int)curr.x);
+		context.mView.setPivotY((int)curr.y);
+		context.mView.setAnimation(rotate);
+		*/
 	}
 	private Point getMiddle(Point from)
 	{
@@ -66,7 +76,6 @@ public class UpdateView implements Runnable{
 		context.mView.setY((float) (middle.y - context.mView.getHeight() / 2));
 		context.mView.bringToFront();
 		old = new_pos;
-		
 	}
 
 }
