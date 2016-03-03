@@ -16,6 +16,7 @@ public class UpdateView implements Runnable{
 	private Point old;
 	private Point curr;
 	private double rad;
+	private int timeout;
 	public int CamHeight;
 	public int CamWidth;
 
@@ -30,6 +31,7 @@ public class UpdateView implements Runnable{
 		rad = 0;
 		CamWidth = 0;
 		CamHeight = 0;
+		timeout = 0;
 	}
 	public void setCameraSize(int width, int height)
 	{
@@ -40,6 +42,7 @@ public class UpdateView implements Runnable{
 	{
 		curr = new Point(circle[0], circle[1]);
 		rad = circle[2];
+		timeout = 50;
 		/*
 		Animation rotate = AnimationUtils.loadAnimation(context, R.animator.rotate);
 		context.mView.setPivotX((int)curr.x);
@@ -76,6 +79,12 @@ public class UpdateView implements Runnable{
 		context.mView.setY((float) (middle.y - context.mView.getHeight() / 2));
 		context.mView.bringToFront();
 		old = new_pos;
+		timeout -= 1;
+		if (timeout <= 0)
+		{
+			curr = new Point(CamWidth / 2, CamHeight / 2);
+			timeout = 0;
+		}
 	}
 
 }
