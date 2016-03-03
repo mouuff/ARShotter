@@ -36,10 +36,10 @@ public class UpdateView implements Runnable{
 		CamWidth = width;
 		CamHeight = height;
 	}
-	public void updateData(Point a, double _rad)
+	public void updateData(double[] circle)
 	{
-		curr = a;
-		rad = _rad;
+		curr = new Point(circle[0], circle[1]);
+		rad = circle[2];
 		/*
 		Animation rotate = AnimationUtils.loadAnimation(context, R.animator.rotate);
 		context.mView.setPivotX((int)curr.x);

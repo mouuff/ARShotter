@@ -65,6 +65,29 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		Imgproc.resize(resized, res, res.size(), 0, 0, Imgproc.INTER_NEAREST);
 		return (res);
 	}
+	private double getDist(Point a, Point b)
+	{
+		return (Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2)));
+	}
+	private double[] getClosestCircle(Mat circles, Point mid)
+	{
+		double closest[] = new double[3];
+		Point buff = new Point();
+		
+		for (int i = 0; i < circles.cols(); i++)
+    	{
+    		double mCircle[] = circles.get(0, i);
+    		buff.x = mCircle[0];
+    		buff.y = mCircle[1];
+    		if (getDist(buff, mid) < getDist(new Point(closest[0], closest[1]), mid) || i == 0)
+    		{
+    			closest[0] = mCircle[0];
+    			closest[1] = mCircle[1];
+    			closest[2] = mCircle[2];
+    		}
+    	}
+		return (closest);
+	}
 	@Override
 	public void onPause()
 	{
@@ -103,14 +126,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	rGray = Zoom(mGray, 0.655, 10, -25);
     	
     	Mat circles = new Mat();
-    	Imgproc.GaussianBlur(rGray, rGray, new Size(15,15), 2, 2);
-    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, rGray.rows() / 4, 200, 100, 0, 0);
-    	for (int i = 0; i < circles.cols(); i++)
+    	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
+    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0, rGray.rows() / 2, 200, 100, 0, 0);
+    	
+    	if (circles.cols() > 0)
     	{
-    		double mCircle[] = circles.get(0, i);
-    		Point a = new Point(mCircle[0], mCircle[1]);
-    		Updater.updateData(a, mCircle[2]);
-    		Core.circle(rGray, a, (int)mCircle[2], new Scalar(0, 255, 0));
+    		double[] circle = getClosestCircle(circles, new Point(rGray.cols() / 2, rGray.rows() / 2));
+    		Updater.updateData(circle);
+    		Core.circle(rGray, new Point(circle[0], circle[1]), (int)circle[2], new Scalar(0, 255, 0));
     	}
     	runOnUiThread(Updater);
     	//move View from last sequence
