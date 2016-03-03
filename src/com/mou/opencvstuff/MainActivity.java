@@ -99,7 +99,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	
     	mRgba = inputFrame.rgba();
     	mGray = inputFrame.gray();
-    	rRgba = Zoom(mRgba, 0.64, 5, -25);
+    	//rRgba = Zoom(mRgba, 0.64, 5, -25);
     	rGray = Zoom(mGray, 0.64, 5, -25);
     	
     	Mat circles = new Mat();
@@ -110,7 +110,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     		double mCircle[] = circles.get(0, i);
     		Point a = new Point(mCircle[0], mCircle[1]);
     		Updater.updateData(a, mCircle[2]);
-    		Core.circle(rRgba, a, (int)mCircle[2], new Scalar(0, 255, 0));
+    		Core.circle(mRgba, a, (int)mCircle[2], new Scalar(0, 255, 0));
     	}
     	runOnUiThread(Updater);
     	//move View from last sequence
