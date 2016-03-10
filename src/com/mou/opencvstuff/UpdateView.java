@@ -43,12 +43,6 @@ public class UpdateView implements Runnable{
 		curr = new Point(circle[0], circle[1]);
 		rad = circle[2];
 		timeout = 50;
-		/*
-		Animation rotate = AnimationUtils.loadAnimation(context, R.animator.rotate);
-		context.mView.setPivotX((int)curr.x);
-		context.mView.setPivotY((int)curr.y);
-		context.mView.setAnimation(rotate);
-		*/
 	}
 	private Point getMiddle(Point from)
 	{
