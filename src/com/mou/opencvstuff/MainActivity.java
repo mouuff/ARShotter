@@ -61,7 +61,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 				(int)((from.rows() * factor) - xoff),
 				(int)((from.cols() - from.cols() * factor) - yoff),
 				(int)((from.cols() * factor) - yoff));
-		//Imgproc.resize(from, resized, new Size(from.rows() * factor, from.cols() * factor), 0, 0, Imgproc.INTER_CUBIC);
 		Imgproc.resize(resized, res, res.size(), 0, 0, Imgproc.INTER_NEAREST);
 		return (res);
 	}
@@ -116,19 +115,17 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat mRgba;
-    	Mat mGray;
+		Mat mGray;
     	Mat rRgba;
     	Mat rGray;
+    	Mat circles = new Mat();
     	
     	mRgba = inputFrame.rgba();
     	mGray = inputFrame.gray();
     	rRgba = Zoom(mRgba, 0.655, 10, -25);
     	rGray = Zoom(mGray, 0.655, 10, -25);
-    	
-    	Mat circles = new Mat();
     	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
     	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 100, 50, 0, 0);
-    	
     	if (circles.cols() > 0)
     	{
     		double[] circle = getClosestCircle(circles, new Point(rGray.cols() / 2, rGray.rows() / 2));
@@ -136,11 +133,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     		Core.circle(rRgba, new Point(circle[0], circle[1]), (int)circle[2], new Scalar(0, 255, 0));
     	}
     	runOnUiThread(Updater);
-    	
     	//double[] pt = rRgba.get(rRgba.rows() / 2, rRgba.cols() / 2);
     	//Core.rectangle(rRgba, new Point(0, 0), new Point(10, 10), new Scalar(pt[0], pt[1], pt[2], pt[3]));
     	//move View from last sequence
-    	//System.gc();
-    	return (rRgba);
+    	return (mRgba);
 	}
 }
