@@ -24,6 +24,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public CameraBridgeViewBase mOpenCvCameraView;
 	private String TAG = "opencvstuff";
 	private UpdateView Updater;
+	private Mat rRgba = null;
+	private Mat rGray = null;
 	
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -52,17 +54,17 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		Updater = new UpdateView(this);
 	}
-	private Mat Zoom(Mat from, double factor, double xoff, double yoff)
+	private Mat Zoom(Mat dest, Mat from, double factor, double xoff, double yoff)
 	{
-		Mat res = new Mat(from.rows(), from.cols(), from.type());
+		//Mat dest = new Mat(from.rows(), from.cols(), from.type());
 		Mat resized;
 		resized = from.submat(
 				(int)((from.rows() - from.rows() * factor) - xoff),
 				(int)((from.rows() * factor) - xoff),
 				(int)((from.cols() - from.cols() * factor) - yoff),
 				(int)((from.cols() * factor) - yoff));
-		Imgproc.resize(resized, res, res.size(), 0, 0, Imgproc.INTER_NEAREST);
-		return (res);
+		Imgproc.resize(resized, dest, dest.size(), 0, 0, Imgproc.INTER_NEAREST);
+		return (dest);
 	}
 	private double getDist(Point a, Point b)
 	{
@@ -114,16 +116,19 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	}
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		Mat mRgba;
-		Mat mGray;
-    	Mat rRgba;
-    	Mat rGray;
-    	Mat circles = new Mat();
+		Mat mRgba = inputFrame.rgba();
+		Mat mGray = inputFrame.gray();
+		if (rRgba == null) {
+			rRgba = new Mat(mRgba.rows(), mRgba.cols(), mRgba.type());
+		}
+    	if (rGray == null) {
+    		rGray = new Mat(mGray.rows(), mGray.cols(), mGray.type());
+    	}
+		Mat circles = new Mat();
     	
-    	mRgba = inputFrame.rgba();
-    	mGray = inputFrame.gray();
-    	rRgba = Zoom(mRgba, 0.655, 10, -25);
-    	rGray = Zoom(mGray, 0.655, 10, -25);
+    	Zoom(rRgba, mRgba, 0.655, 10, -25);
+    	Zoom(rGray, mGray, 0.655, 10, -25);
+    	
     	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
     	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 100, 50, 0, 0);
     	if (circles.cols() > 0)
@@ -136,6 +141,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	//double[] pt = rRgba.get(rRgba.rows() / 2, rRgba.cols() / 2);
     	//Core.rectangle(rRgba, new Point(0, 0), new Point(10, 10), new Scalar(pt[0], pt[1], pt[2], pt[3]));
     	//move View from last sequence
-    	return (mRgba);
+    	return (rRgba);
 	}
 }
