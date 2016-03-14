@@ -16,6 +16,7 @@ import org.opencv.imgproc.Imgproc;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -26,9 +27,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	private UpdateView Updater;
 	private Mat rRgba = null;
 	private Mat rGray = null;
+	private int cam = 0;
 	
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-		@Override
+	@Override
         public void onManagerConnected(int status) {
 			switch (status) {
 				case LoaderCallbackInterface.SUCCESS:
@@ -128,9 +130,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	
     	Zoom(rRgba, mRgba, 0.655, 10, -25);
     	Zoom(rGray, mGray, 0.655, 10, -25);
+    	if (cam == 1)
+    		rRgba.setTo(new Scalar(0,0,0));
     	
     	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
-    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 100, 50, 0, 0);
+    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 70, 50, 0, 0);
     	if (circles.cols() > 0)
     	{
     		double[] circle = getClosestCircle(circles, new Point(rGray.cols() / 2, rGray.rows() / 2));
@@ -143,4 +147,17 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	//move View from last sequence
     	return (rRgba);
 	}
+	
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)){
+            if (cam == 0)
+            	cam = 1;
+            else
+            	cam = 0;
+        }
+        else
+        	this.onKeyDown(keyCode, event);
+        return true;
+    }
 }
