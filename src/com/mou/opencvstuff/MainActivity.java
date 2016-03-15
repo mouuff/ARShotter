@@ -145,7 +145,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	}
     	runOnUiThread(Updater);
     	//double[] pt = rRgba.get(rRgba.rows() / 2, rRgba.cols() / 2);
-    	//Core.rectangle(rRgba, new Point(0, 0), new Point(10, 10), new Scalar(pt[0], pt[1], pt[2], pt[3]));
+    	//double[] pt = rRgba.get((int) Updater.curr.x, (int) Updater.curr.y);
+    	//Core.rectangle(rRgba, new Point(0, 0), new Point(10, 10), new Scalar(pt[0], pt[1], pt[2], pt[3]), 2);
     	//move View from last sequence
     	return (rRgba);
 	}

@@ -14,7 +14,7 @@ import org.opencv.core.Point;
 public class UpdateView implements Runnable{
 	private MainActivity context;
 	private Point old;
-	private Point curr;
+	public Point curr;
 	private double rad;
 	private int timeout;
 	public int CamHeight;
