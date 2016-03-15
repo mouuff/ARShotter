@@ -133,7 +133,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	if (cam == 1)
     	{
     		rRgba.setTo(new Scalar(0,0,0));
-    		Core.rectangle(rRgba, new Point(0, 0), new Point(rRgba.rows(), rRgba.cols()), new Scalar(255, 255, 255, 255));
+    		Core.rectangle(rRgba, new Point(0, 0), new Point(rRgba.cols() - 1, rRgba.rows() - 1), new Scalar(255, 255, 255, 255));
     	}
     	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
     	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 70, 50, 0, 0);
