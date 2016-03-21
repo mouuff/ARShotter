@@ -1,5 +1,9 @@
 package com.mou.opencvstuff;
 
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.util.List;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -61,6 +65,12 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			public void onClick(View v) {
 				if (Updater.color != null && Updater.timeout > 10)
 				{
+					try {
+						Udp udp = new Udp("192.168.43.22", 12345);
+						udp.send("hellooo");
+					} catch (Exception e) {
+						Log.e(TAG, "SEND: " + e.getMessage());
+					}
 					Log.d(TAG, "COLOR: "+ Updater.color.toString());
 				}
 			}
