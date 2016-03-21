@@ -4,6 +4,7 @@
 package com.mou.opencvstuff;
 
 import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 
 
 /**
@@ -16,7 +17,8 @@ public class UpdateView implements Runnable{
 	private Point old;
 	public Point curr;
 	private double rad;
-	private int timeout;
+	public int timeout;
+	public Scalar color;
 	public int CamHeight;
 	public int CamWidth;
 

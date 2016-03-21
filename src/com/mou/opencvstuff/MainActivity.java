@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity implements CvCameraViewListener2 {
@@ -55,6 +56,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camview);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		Updater = new UpdateView(this);
+		mOpenCvCameraView.setOnClickListener(new OnClickListener() {	
+			@Override
+			public void onClick(View v) {
+				if (Updater.color != null && Updater.timeout > 10)
+				{
+					Log.d(TAG, "COLOR: "+ Updater.color.toString());
+				}
+			}
+		});
 	}
 	private Mat Zoom(Mat dest, Mat from, double factor, double xoff, double yoff)
 	{
@@ -126,18 +136,32 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	if (rGray == null) {
     		rGray = new Mat(mGray.rows(), mGray.cols(), mGray.type());
     	}
-		Mat circles = new Mat();
-    	
-    	Zoom(rRgba, mRgba, 0.655, 10, -25);
     	Zoom(rGray, mGray, 0.655, 10, -25);
+    	Zoom(rRgba, mRgba, 0.655, 10, -25);
+    	
+    	double[] color = rRgba.get((int) Updater.curr.x, (int) Updater.curr.y);
     	if (cam == 1)
     	{
+    		//black mode, for actual AR
     		rRgba.setTo(new Scalar(0,0,0));
     		Core.rectangle(rRgba,
     				new Point(0, 0),
     				new Point(rRgba.cols() - 1, rRgba.rows() - 1),
     				new Scalar(0, 255, 0, 255));
     	}
+    	
+    	//color demo
+    	if (color != null)
+    	{
+    		Updater.color = new Scalar(color[0], color[1], color[2], color[3]);
+    		Core.rectangle(rRgba,
+    				new Point(0, 0),
+    				new Point(10, 10),
+    				Updater.color,
+    				2);
+    	}
+    	
+    	Mat circles = new Mat();
     	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
     	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 70, 50, 0, 0);
     	if (circles.cols() > 0)
@@ -147,9 +171,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     		Core.circle(rRgba, new Point(circle[0], circle[1]), (int)circle[2], new Scalar(0, 255, 0));
     	}
     	runOnUiThread(Updater);
-    	//double[] pt = rRgba.get(rRgba.rows() / 2, rRgba.cols() / 2);
-    	//double[] pt = rRgba.get((int) Updater.curr.x, (int) Updater.curr.y);
-    	//Core.rectangle(rRgba, new Point(0, 0), new Point(10, 10), new Scalar(pt[0], pt[1], pt[2], pt[3]), 2);
     	//move View from last sequence
     	return (rRgba);
 	}
