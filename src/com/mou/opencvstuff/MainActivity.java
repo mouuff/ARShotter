@@ -65,13 +65,26 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			public void onClick(View v) {
 				if (Updater.color != null && Updater.timeout > 10)
 				{
-					try {
-						Udp udp = new Udp("192.168.43.22", 12345);
-						udp.send("hellooo");
-					} catch (Exception e) {
-						Log.e(TAG, "SEND: " + e.getMessage());
-					}
-					Log.d(TAG, "COLOR: "+ Updater.color.toString());
+					Log.d("COLOR", "R: " + Updater.color.val[0] + " B: " + Updater.color.val[2]);
+					Thread thread = new Thread(new Runnable(){
+					    @Override
+					    public void run() {
+					        try {
+					        	String cmd;
+					        	
+								if (Updater.color.val[0] > Updater.color.val[2])
+									cmd = "L";
+								else
+									cmd = "R";
+								Udp udp = new Udp();
+								udp.udpSend(new String("192.168.43.23"), 12345, cmd);
+								Log.d(TAG, "COLOR: "+ Updater.color.toString());
+					        } catch (Exception e) {
+					            e.printStackTrace();
+					        }
+					    }
+					});
+					thread.start();
 				}
 			}
 		});
@@ -173,7 +186,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	
     	Mat circles = new Mat();
     	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
-    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 70, 50, 0, 0);
+    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 150, 40, 0, 0);
     	if (circles.cols() > 0)
     	{
     		double[] circle = getClosestCircle(circles, new Point(rGray.cols() / 2, rGray.rows() / 2));
