@@ -65,20 +65,19 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			public void onClick(View v) {
 				if (Updater.color != null && Updater.timeout > 10)
 				{
-					Log.d("COLOR", "R: " + Updater.color.val[0] + " B: " + Updater.color.val[2]);
 					Thread thread = new Thread(new Runnable(){
 					    @Override
 					    public void run() {
 					        try {
 					        	String cmd;
-					        	
-								if (Updater.color.val[0] > Updater.color.val[2])
-									cmd = "L";
-								else
-									cmd = "R";
+					        	if (Updater.isRed())
+					        		cmd = "R";
+					        	else
+					        		cmd = "L";
 								Udp udp = new Udp();
 								udp.udpSend(new String("192.168.43.23"), 12345, cmd);
 								Log.d(TAG, "COLOR: "+ Updater.color.toString());
+								Log.d(TAG, "COLOR: " + cmd);
 					        } catch (Exception e) {
 					            e.printStackTrace();
 					        }
@@ -149,6 +148,29 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	@Override
 	public void onCameraViewStopped() {
 	}
+	public double[] getMoyColor(Mat rgba)
+	{
+		double[] res = new double[4];
+		double[] mid, left, right, up, down;
+		if (rgba == null)
+			return null;
+		
+		mid = rgba.get((int) Updater.curr.x, (int) Updater.curr.y);
+		left = rgba.get((int) ((int) Updater.curr.x - Updater.rad / 1.5), (int) Updater.curr.y);
+		right = rgba.get((int) ((int) Updater.curr.x + Updater.rad / 1.5), (int) Updater.curr.y);
+		up = rgba.get((int) Updater.curr.x, (int) ((int) Updater.curr.y + Updater.rad / 1.5));
+		down = rgba.get((int) Updater.curr.x, (int) ((int) Updater.curr.y - Updater.rad / 1.5));
+		
+		if (mid == null || left == null || right == null || up == null || down == null)
+			return null;
+		res[0] = (mid[0] + left[0] + right[0] + up[0] + down[0]) / 5;
+		res[1] = (mid[1] + left[1] + right[1] + up[1] + down[1]) / 5;
+		res[2] = (mid[2] + left[2] + right[2] + up[2] + down[2]) / 5;
+		res[3] = (mid[3] + left[3] + right[3] + up[3] + down[3]) / 5;
+		
+    	return (res);
+	}
+	
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat mRgba = inputFrame.rgba();
@@ -162,7 +184,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	Zoom(rGray, mGray, 0.655, 10, -25);
     	Zoom(rRgba, mRgba, 0.655, 10, -25);
     	
-    	double[] color = rRgba.get((int) Updater.curr.x, (int) Updater.curr.y);
+    	//double[] color = rRgba.get((int) Updater.curr.x, (int) Updater.curr.y);
+    	double[] color = getMoyColor(rRgba);
     	if (cam == 1)
     	{
     		//black mode, for actual AR
@@ -186,7 +209,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	
     	Mat circles = new Mat();
     	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
-    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 150, 40, 0, 0);
+    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 60, 40, 0, 0);
     	if (circles.cols() > 0)
     	{
     		double[] circle = getClosestCircle(circles, new Point(rGray.cols() / 2, rGray.rows() / 2));
@@ -204,6 +227,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     		cam = 1;
     	else
     		cam = 0;
-        return true;
+		return true;
     }
 }

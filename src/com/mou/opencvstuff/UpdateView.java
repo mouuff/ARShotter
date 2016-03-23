@@ -16,12 +16,24 @@ public class UpdateView implements Runnable{
 	private MainActivity context;
 	private Point old;
 	public Point curr;
-	private double rad;
+	public double rad;
 	public int timeout;
 	public Scalar color;
 	public int CamHeight;
 	public int CamWidth;
 
+	public boolean isRed()
+	{
+		double[] vals;
+		
+		if (this.color == null)
+			return (false);
+		vals = this.color.val;
+		
+		if (vals[0] > vals[2])
+			return (true);
+		return (false);
+	}
 	public UpdateView(MainActivity _context)
 	{
 		context = _context;
