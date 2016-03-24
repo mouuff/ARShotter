@@ -4,15 +4,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
-import java.util.List;
-
-import android.os.Build.VERSION;
 import android.util.Log;
 
 public class Udp
@@ -21,27 +14,25 @@ public class Udp
 	InetAddress local;
 
 	public void udpSend(String server,int server_port,String messageStr){
-		try
-		{
+		try {
 			s = new DatagramSocket();
 		}
-		catch (SocketException e)
-		{
+		catch (SocketException e) {
 			Log.e("UDP", e.getMessage());
 		}
-		try
-		{
+		try {
 			local = InetAddress.getByName(server);
 		}
-		catch (UnknownHostException e){}
+		catch (UnknownHostException e) {
+			Log.e("UDP", e.getMessage());
+		}
 		int msg_length = messageStr.length();
 		byte[] message = messageStr.getBytes();
-		DatagramPacket p = new DatagramPacket(message, msg_length,local,server_port);
-		try
-		{
+		DatagramPacket p = new DatagramPacket(message, msg_length, local, server_port);
+		try {
 			s.send(p);
 		}
-		catch (IOException e){
+		catch (IOException e) {
 			Log.e("UDP", e.getMessage());
 		}
 
