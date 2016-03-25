@@ -152,20 +152,12 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		double[] mid, left, right, up, down;
 		if (rgba == null)
 			return null;
-		
 
 		mid = rgba.get((int) Updater.curr.y, (int) Updater.curr.x);
 		left = rgba.get((int) Updater.curr.y, ((int) (Updater.curr.x - Updater.rad / div)));
 		right = rgba.get((int) Updater.curr.y, ((int) (Updater.curr.x + Updater.rad / div)));
 		up = rgba.get((int) (Updater.curr.y + Updater.rad / div), (int) Updater.curr.x);
 		down = rgba.get((int) (Updater.curr.y - Updater.rad / div), (int) Updater.curr.x);
-		
-		Core.line(rgba, new Point((int) (Updater.curr.x - Updater.rad / div), (int) Updater.curr.y),
-				new Point((int) (Updater.curr.x + Updater.rad / div), (int) Updater.curr.y),
-				new Scalar(0, 255, 0));
-		Core.line(rgba, new Point((int) Updater.curr.x,  (int) (Updater.curr.y + Updater.rad / div)),
-				new Point((int) Updater.curr.x, (int) (Updater.curr.y - Updater.rad / div)),
-				new Scalar(0, 255, 0));
 		
 		/*
 		mid = rgba.get((int) Updater.curr.x, (int) Updater.curr.y);
