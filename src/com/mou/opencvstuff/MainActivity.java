@@ -145,6 +145,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	@Override
 	public void onCameraViewStopped() {
 	}
+	private boolean positionIsValid(Mat rgba, int row, int col)
+	{
+		if (row < 0 || col < 0)
+			return (false);
+		if (row >= rgba.cols() || col >= rgba.rows())
+			return (false);
+		return (true);
+	}
 	public double[] getMoyColor(Mat rgba)
 	{
 		double[] res = new double[4];
@@ -152,23 +160,25 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		double[] mid, left, right, up, down;
 		if (rgba == null)
 			return null;
-
+		
+		if (!positionIsValid(rgba, (int) Updater.curr.y, (int) Updater.curr.x))
+			return (null);
+		if (!positionIsValid(rgba, (int) Updater.curr.y, ((int) (Updater.curr.x - Updater.rad / div))))
+			return (null);
+		if (!positionIsValid(rgba, (int) Updater.curr.y, ((int) (Updater.curr.x + Updater.rad / div))))
+			return (null);
+		if (!positionIsValid(rgba, (int) (Updater.curr.y - Updater.rad / div), (int) Updater.curr.x))
+			return (null);
+		
 		mid = rgba.get((int) Updater.curr.y, (int) Updater.curr.x);
 		left = rgba.get((int) Updater.curr.y, ((int) (Updater.curr.x - Updater.rad / div)));
 		right = rgba.get((int) Updater.curr.y, ((int) (Updater.curr.x + Updater.rad / div)));
 		up = rgba.get((int) (Updater.curr.y + Updater.rad / div), (int) Updater.curr.x);
 		down = rgba.get((int) (Updater.curr.y - Updater.rad / div), (int) Updater.curr.x);
 		
-		/*
-		mid = rgba.get((int) Updater.curr.x, (int) Updater.curr.y);
-		left = rgba.get(((int) (Updater.curr.x - Updater.rad / div)), (int) Updater.curr.y);
-		right = rgba.get(((int) (Updater.curr.x + Updater.rad / div)), (int) Updater.curr.y);
-		up = rgba.get((int) Updater.curr.x, (int) (Updater.curr.y + Updater.rad / div));
-		down = rgba.get((int) Updater.curr.x, (int) (Updater.curr.y - Updater.rad / div));
-		*/
-		
 		if (mid == null || left == null || right == null || up == null || down == null)
 			return null;
+		
 		res[0] = (mid[0] + left[0] + right[0] + up[0] + down[0]) / 5;
 		res[1] = (mid[1] + left[1] + right[1] + up[1] + down[1]) / 5;
 		res[2] = (mid[2] + left[2] + right[2] + up[2] + down[2]) / 5;
