@@ -148,15 +148,32 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public double[] getMoyColor(Mat rgba)
 	{
 		double[] res = new double[4];
+		double div = 1.3;
 		double[] mid, left, right, up, down;
 		if (rgba == null)
 			return null;
 		
+
+		mid = rgba.get((int) Updater.curr.y, (int) Updater.curr.x);
+		left = rgba.get((int) Updater.curr.y, ((int) (Updater.curr.x - Updater.rad / div)));
+		right = rgba.get((int) Updater.curr.y, ((int) (Updater.curr.x + Updater.rad / div)));
+		up = rgba.get((int) (Updater.curr.y + Updater.rad / div), (int) Updater.curr.x);
+		down = rgba.get((int) (Updater.curr.y - Updater.rad / div), (int) Updater.curr.x);
+		
+		Core.line(rgba, new Point((int) (Updater.curr.x - Updater.rad / div), (int) Updater.curr.y),
+				new Point((int) (Updater.curr.x + Updater.rad / div), (int) Updater.curr.y),
+				new Scalar(0, 255, 0));
+		Core.line(rgba, new Point((int) Updater.curr.x,  (int) (Updater.curr.y + Updater.rad / div)),
+				new Point((int) Updater.curr.x, (int) (Updater.curr.y - Updater.rad / div)),
+				new Scalar(0, 255, 0));
+		
+		/*
 		mid = rgba.get((int) Updater.curr.x, (int) Updater.curr.y);
-		left = rgba.get((int) ((int) Updater.curr.x - Updater.rad / 1.5), (int) Updater.curr.y);
-		right = rgba.get((int) ((int) Updater.curr.x + Updater.rad / 1.5), (int) Updater.curr.y);
-		up = rgba.get((int) Updater.curr.x, (int) ((int) Updater.curr.y + Updater.rad / 1.5));
-		down = rgba.get((int) Updater.curr.x, (int) ((int) Updater.curr.y - Updater.rad / 1.5));
+		left = rgba.get(((int) (Updater.curr.x - Updater.rad / div)), (int) Updater.curr.y);
+		right = rgba.get(((int) (Updater.curr.x + Updater.rad / div)), (int) Updater.curr.y);
+		up = rgba.get((int) Updater.curr.x, (int) (Updater.curr.y + Updater.rad / div));
+		down = rgba.get((int) Updater.curr.x, (int) (Updater.curr.y - Updater.rad / div));
+		*/
 		
 		if (mid == null || left == null || right == null || up == null || down == null)
 			return null;
@@ -206,7 +223,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     	
     	Mat circles = new Mat();
     	Imgproc.GaussianBlur(rGray, rGray, new Size(7, 7), 2, 2);
-    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 60, 40, 0, 0);
+    	Imgproc.HoughCircles(rGray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, rGray.rows() / 4, 30, 40, 0, 0);
+    	//canny / precision
     	if (circles.cols() > 0)
     	{
     		double[] circle = getClosestCircle(circles, new Point(rGray.cols() / 2, rGray.rows() / 2));
